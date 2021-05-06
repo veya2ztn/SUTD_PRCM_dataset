@@ -10,7 +10,7 @@ The full dataset is a 8G file and can be download here:
 
 This dataset is consist of 30k+60k+60k+110k 「image($16\times16)$」- 「complex value curve $2\times1001$」pair.
 
-<img src="F:/OnedrivePersonal/OneDrive/paper-TIANNING/1. MetaSurface/ImagePool/have_a_look_for_all_image_dataset.image.jpg" alt="have_a_look_for_all_image_dataset.image" style="zoom: 15%;" /><img src="F:/OnedrivePersonal/OneDrive/paper-TIANNING/1. MetaSurface/ImagePool/have_a_look_for_all_image_dataset.curve.jpg" alt="have_a_look_for_all_image_dataset.curve" style="zoom:20%;" />
+<img src="https://github.com/veya2ztn/SUTD_PRT_dataset/blob/master/images/have_a_look_for_all_image_dataset.image.jpg?raw=true" alt="have_a_look_for_all_image_dataset.curve" style="zoom:15%;" /><img src="https://github.com/veya2ztn/SUTD_PRT_dataset/blob/master/images/have_a_look_for_all_image_dataset.curve.jpg?raw=true" alt="have_a_look_for_all_image_dataset.image" style="zoom: 20%;" />
 
 Divide  along the pattern symmetry, we have four main image classes:
 
@@ -21,7 +21,7 @@ Divide  along the pattern symmetry, we have four main image classes:
 | PTN  |  60000 | $2^{102}$ | Combination of square, cross, triangle, U-shape, H-shape     |
 | RDN  | 120000 | $2^{256}$ | All the units are randomly set 0 or 1                        |
 
-![image-20210507014350020](C:/Users/user/AppData/Roaming/Typora/typora-user-images/image-20210507014350020.png)
+![image-20210507014350020](https://github.com/veya2ztn/SUTD_PRT_dataset/blob/master/images/image-20210507014350020.png?raw=truehttps://github.com/veya2ztn/SUTD_PRT_dataset/blob/master/images/image-20210507014350020.png?raw=true)
 
 
 
