@@ -11,7 +11,7 @@ from .normlization import normlizationer,norm_dict
 from .utils import *
 from .Curve2vector import IdentyProcess,CurveFourier,CurveWavelet
 
-try:from ..model import criterion
+try:from model import criterion
 except:pass
 
 logging_info = cPrint(True)
