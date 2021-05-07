@@ -265,9 +265,9 @@ class SMSDataset(BaseDataSet):
             offline_imagedata      = os.path.join(offline_data_location,offline_imagedata_name)
             offline_featdata       = os.path.join(offline_data_location,offline_featdata_name)
 
-        self.reoffline    = False   # this option for force offline
 
-        if do_processing_IC_data or (offline == "force"):
+
+        if do_processing_IC_data or (offline == "force-curve"):
             if isinstance(curve_path_list,np.ndarray) and isinstance(image_path_list,np.ndarray):
                 self.imagedata = image_path_list
                 self.curvedata = curve_path_list
@@ -329,7 +329,7 @@ class SMSDataset(BaseDataSet):
             self.curvedata = np.load(offline_curvedata)
 
 
-        if do_processing_feature or (offline == "force"):
+        if do_processing_feature or (offline == "force-feat"):
             #####################################################################################
             # In the newest data manager, we use a dist control
             # there is a control parameter named type_predicted

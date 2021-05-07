@@ -73,7 +73,7 @@ def random_h_flip(data):
     index=torch.randint(2,(batch,))==1
     data[index]=data[index].flip(3)
 
-def find_peak(tensor,include_boundary=True,complete=False):
+def find_peak(tensor,include_boundary=True,complete=False,level=10):
     #this function will return all the peak, include
     #   /\  and  the center of     /——\
     # /  \                       /      \
@@ -115,7 +115,10 @@ def find_peak(tensor,include_boundary=True,complete=False):
     #out = ((grad_r - grad_l) == 2)+ 0
 
     # find the plat
-    search_seq = [[1,-1],[1,0,-1],[1,0,0,-1],[1,0,0,0,-1],[1,0,0,0,0,-1],[1,0,0,0,0,0,-1],[1,0,0,0,0,0,0,-1]]
+    search_seq = []
+    for i in range(level):
+        search_seq+=[[1]+[0]*i+[-1]]
+    #search_seq += [[1,-1],[1,0,-1],[1,0,0,-1],[1,0,0,0,-1],[1,0,0,0,0,-1],[1,0,0,0,0,0,-1],[1,0,0,0,0,0,0,-1]]
     # for our data, there is only few or no large plat if we desample data from 1001 to 128
     for seq in search_seq: out=out+find_seq(grad_r,seq)
     #     plat0=find_seq(grad_r,[1,-1])
