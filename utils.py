@@ -334,6 +334,40 @@ def get_contour_data(images,dim=50):
     return real_vector,expand_norm_vector
 
 
+def check_image_repeat(curve_path_list,image_path_list):
+    from fastprogress import master_bar,progress_bar
+
+    if not isinstance(curve_path_list,list) and image_path_list is None:
+        # this code reveal the curve file and image file from a high level path ../Data##
+        curve_path_list,image_path_list = convertlist(curve_path_list)
+    if isinstance(curve_path_list,str) and isinstance(image_path_list,str):
+        # this code for single image and curve file
+        if os.path.isfile(curve_path_list) and os.path.isfile(image_path_list):
+            curve_path_list=[curve_path_list]
+            image_path_list=[image_path_list]
+
+    image_pool = {}
+    repeat_list= []
+    replace_list={}
+    mb = master_bar(range(len(curve_path_list)))
+    for idx in mb:
+        curve_path = curve_path_list[idx]
+        image_path = image_path_list[idx]
+        _,basename = os.path.split(image_path)
+        images     = np.load(image_path)
+        pb = progress_bar(range(len(images)),parent=mb)
+        for i in pb:
+            image = images[i]
+            key = "".join([str(d) for d in image])
+            if key in image_pool:
+                repeat_list.append([f"{basename}_{i}",image_pool[key]])
+                if image_path not in replace_list:replace_list[image_path]=[]
+                replace_list[image_path].append(i)
+                print(f"{basename}_{i}->{image_pool[key]}")
+            else:
+                image_pool[key]=f"{basename}_{i}"
+    return image_pool,repeat_list,replace_list
+
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 cmap = ['blue', 'green','orange','grey', 'purple',  'red','pink']

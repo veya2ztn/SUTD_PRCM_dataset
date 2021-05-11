@@ -10,9 +10,8 @@ import matplotlib.pyplot as plt
 from .normlization import normlizationer,norm_dict
 from .utils import *
 from .Curve2vector import IdentyProcess,CurveFourier,CurveWavelet
+from . import criterion
 
-try:from model import criterion
-except:pass
 
 logging_info = cPrint(True)
 def load_list_data(curve_path_list,image_path_list):
@@ -236,7 +235,7 @@ class SMSDataset(BaseDataSet):
             self.DataSetType+=f".{val_filter}"
 
 
-        if isinstance(curve_path_list,np.ndarray) and (not offline_data_location) and (not DATAROOT):
+        if (isinstance(curve_path_list,np.ndarray) and (not offline_data_location) and (not DATAROOT)) or not offline:
             print("use array input, and not set the offline data save path. We will not offline generated data.")
             offline_data_location = "offline_data"
             do_processing_IC_data = True
