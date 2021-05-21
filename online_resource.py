@@ -11,6 +11,8 @@ online_path={"PLG.B1NES32"  :"https://www.dropbox.com/s/zf88vvtrxcfwfdp/B1NES32.
              "PLR.B1NES32"  :"https://www.dropbox.com/s/tw8idvltojk6mig/B1NES32.zip?dl=1",
              "PLR.B1NES128" :"https://www.dropbox.com/s/mnhbit9owkcsxxe/B1NES128.zip?dl=1",
              "PLR.B1NES1001":"https://www.dropbox.com/s/rzgwdn5nlibv04j/B1NES1001.zip?dl=1",
+            "PLR250.B1NES32":"https://www.dropbox.com/s/s3gcv699utq9h10/B1NES32.751to1001.zip?dl=1",
+           "PLGR50.B1NES128":"https://www.dropbox.com/s/8q0wp3nfkv54hxg/B1NES128.751to1001.zip?dl=1",
 
              "RDN.B1NES32"  :"https://www.dropbox.com/s/yq95z1j15ae3356/B1NES32.zip?dl=1",
              "RDN.B1NES128" :"https://www.dropbox.com/s/85yduq6zu07pwk5/B1NES128.zip?dl=1",
