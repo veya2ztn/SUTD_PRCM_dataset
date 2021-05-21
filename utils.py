@@ -333,7 +333,9 @@ def get_contour_data(images,dim=50):
     expand_norm_vector=np.array(expand_norm_vector)
     return real_vector,expand_norm_vector
 
-
+def get_unicode_of_image(image):
+    key = "".join([str(d) for d in image])
+    return key
 def check_image_repeat(curve_path_list,image_path_list):
     from fastprogress import master_bar,progress_bar
 
@@ -358,7 +360,7 @@ def check_image_repeat(curve_path_list,image_path_list):
         pb = progress_bar(range(len(images)),parent=mb)
         for i in pb:
             image = images[i]
-            key = "".join([str(d) for d in image])
+            key = get_unicode_of_image(image)
             if key in image_pool:
                 repeat_list.append([f"{basename}_{i}",image_pool[key]])
                 if image_path not in replace_list:replace_list[image_path]=[]
