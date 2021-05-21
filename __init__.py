@@ -26,14 +26,17 @@ def get_balance_2_classifier_dataset(loseFunction="CELoss",
          CURVETRAIN = f"{DATAROOT}/randomly_data_valid_3000/train_data_list",
          IMAGETRAIN = None,
          CURVE_TEST = f"{DATAROOT}/randomly_data_valid_3000/valid_data_list",
-         IMAGE_TEST = None):
-    dataset_train= SMSDatasetB1NES128(CURVETRAIN,IMAGETRAIN,
-                                type_predicted="onehot",target_predicted="balance_leftorright",
-                                case_type='train',verbose=True)
-    dataset_valid= SMSDatasetB1NES128(CURVE_TEST,IMAGE_TEST,
-                                type_predicted="onehot",target_predicted="balance_leftorright",
+         IMAGE_TEST = None,curve_branch='T',**kargs):
+    type_predicted = "onehot"
+    target_predicted="balance_leftorright"
+    FeatureNum=128
+    dataset_train= SMSDatasetN(CURVETRAIN,IMAGETRAIN,FeatureNum=FeatureNum,curve_branch=curve_branch,enhance_p="E",case_type='train',
+                                type_predicted=type_predicted,target_predicted=target_predicted,
+                                **kargs)
+    dataset_valid= SMSDatasetN(CURVE_TEST,IMAGE_TEST,FeatureNum=FeatureNum,curve_branch=curve_branch,enhance_p="E",case_type='test',
+                                type_predicted=type_predicted,target_predicted=target_predicted,
                                 normf=[dataset_train.forf,dataset_train.invf],
-                                case_type='test')
+                                **kargs)
     dataset_train.use_classifier_loss(loseFunction)
     dataset_valid.use_classifier_loss(loseFunction)
     return dataset_train,dataset_valid
