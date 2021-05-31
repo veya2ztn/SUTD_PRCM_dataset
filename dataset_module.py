@@ -488,6 +488,13 @@ class SMSDataset(BaseDataSet):
 
         print(f">>>> {case_type} dataset size {self.length}")
 
+        if verbose:
+            headers = ['type','fea_type','curve data shape', 'image data shape', 'vector data shape']
+            data = [[case_type,self.transformer.feature,
+                     tuple2str(self.curvedata.shape),
+                     tuple2str(self.imagedata.shape),
+                     tuple2str(self.vector.shape) if self.vector is not None else "generated"]]
+            tp.table(data, headers,width=17)
     def check_offine_exist(self,offline_location,matcher_string,flag_num,force=False):
         pattener     = re.compile(matcher_string)
         has_offline  = check_has_file(offline_location,pattener)
