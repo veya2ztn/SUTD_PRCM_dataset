@@ -2,11 +2,6 @@ import numpy as np
 import os,json,time,math,shutil,random
 import torch
 
-TEMPDIR=os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-with open(f"{TEMPDIR}/.DATARoot.json",'r') as f:RootDict=json.load(f)
-DATAROOT  = RootDict['DATAROOT']
-SAVEROOT  = RootDict['SAVEROOT']
-
 class cPrint:
     def __init__(self,verbose=True):
         self.verbose = verbose

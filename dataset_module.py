@@ -14,10 +14,9 @@ from . import criterion
 
 
 logging_info = cPrint(True)
-def load_list_data(curve_path_list,image_path_list):
-    curve_path = curve_path_list
-    image_path = image_path_list
-
+def parse_datalist(curve_path_list,image_path_list):
+    if isinstance(curve_path_list,np.ndarray) and isinstance(image_path_list,np.ndarray):
+        return curve_path_list,image_path_list
     if not isinstance(curve_path_list,list) and image_path_list is None:
     	# this code reveal the curve file and image file from a high level path ../Data##
     	curve_path_list,image_path_list = convertlist(curve_path_list)
@@ -26,7 +25,20 @@ def load_list_data(curve_path_list,image_path_list):
     	if os.path.isfile(curve_path_list) and os.path.isfile(image_path_list):
     		curve_path_list=[curve_path_list]
     		image_path_list=[image_path_list]
+    if not os.path.isfile(curve_path_list[0]) and image_path_list is None:
+        curve_path_list_new=[]
+        image_path_list_new=[]
+        for path_list in curve_path_list:
+            curve_path_l,image_path_l = convertlist(path_list)
+            curve_path_list_new+=curve_path_l
+            image_path_list_new+=image_path_l
+        curve_path_list = curve_path_list_new
+        image_path_list = image_path_list_new
+    return curve_path_list,image_path_list
 
+def load_data_numpy(curve_path_list,image_path_list):
+    if isinstance(curve_path_list,np.ndarray) and isinstance(image_path_list,np.ndarray):
+        return curve_path_list,image_path_list
     imagedata  = []
     curvedata  = []
     for curve_path,image_path in zip(curve_path_list,image_path_list):
@@ -193,6 +205,7 @@ class SMSDataset(BaseDataSet):
     def __init__(self,curve_path_list,image_path_list,FeatureNum=1001,curve_branch='T',curve_flag='N',
                       type_predicted=None,target_predicted=None,normf='none',enhance_p='E',
                       offline=True,offline_data_location=None,DATAROOT=None,dataset_quantity=None,case_type='train',
+                      partIdx=None,
                       val_filter=None,volume=None,range_clip=None,verbose=True,
                       image_transfermer=None,**kargs):
         logging_info = cPrint(verbose)
@@ -214,7 +227,7 @@ class SMSDataset(BaseDataSet):
         self.type_predicted  = type_predicted
         self.target_predicted= target_predicted
         self.case_type       = case_type
-
+        self.partIdx         = partIdx[self.case_type] if partIdx is not None else None
         ##############################################################
         ####################### Name Task ############################
         ##############################################################
@@ -234,6 +247,7 @@ class SMSDataset(BaseDataSet):
         if (val_filter is not None) and ('max' in val_filter):
             self.DataSetType+=f".{val_filter}"
 
+        curve_path_list,image_path_list = parse_datalist(curve_path_list,image_path_list)
 
         if (isinstance(curve_path_list,np.ndarray) and (not offline_data_location) and (not DATAROOT)) or not offline:
             print("use array input, and not set the offline data save path. We will not offline generated data.")
@@ -267,11 +281,7 @@ class SMSDataset(BaseDataSet):
 
 
         if do_processing_IC_data or (offline == "force-curve"):
-            if isinstance(curve_path_list,np.ndarray) and isinstance(image_path_list,np.ndarray):
-                self.imagedata = image_path_list
-                self.curvedata = curve_path_list
-            else:
-                self.imagedata,self.curvedata = load_list_data(curve_path_list,image_path_list)
+            self.imagedata,self.curvedata = load_data_numpy(curve_path_list,image_path_list)
             # 'enhance' and x=1-x now is a default option
             # for sure the curve is noice-off and sensitive for 1 rather than 0
             # it will transform the origin complex curve to its norm
@@ -649,7 +659,14 @@ class SMSDatasetN(SMSDataset):
             else:
                 loss_pool  = {}
                 for accu_type in accu_list:
-                    loss_pool[accu_type] = criterion.loss_functions[accu_type](predict,target)
+                    predict_now=predict
+                    target_now = target
+                    accu_type_real=accu_type
+                    if '_for_' in accu_type:
+                        accu_type_real,_,accu_part =  accu_type.split("_")
+                        predict_now = predict[list(range(*self.partIdx[accu_part]))]
+                        target_now  =  target[list(range(*self.partIdx[accu_part]))]
+                    loss_pool[accu_type] = criterion.loss_functions[accu_type_real](predict_now,target_now)
                 if not inter_process:
                     for accu_type in accu_list:
                         loss_pool[accu_type] = loss_pool[accu_type].mean().item()

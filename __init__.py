@@ -1,7 +1,9 @@
 from .dataset_module import *
 from .utils import download_dropbox_url
 #from .online_resource import online_path
-
+with open(f"{os.path.dirname(os.path.dirname(os.path.realpath(__file__)))}/.DATARoot.json",'r') as f:RootDict=json.load(f)
+DATAROOT  = RootDict['DATAROOT']
+SAVEROOT  = RootDict['SAVEROOT']
 
 
 def get_FAST_B1NE_dataset(OfflinedataRoot,dataset="PLG",FeatureNum=128,range_clip=None,
