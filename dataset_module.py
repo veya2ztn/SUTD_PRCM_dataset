@@ -247,8 +247,7 @@ class SMSDataset(BaseDataSet):
         if (val_filter is not None) and ('max' in val_filter):
             self.DataSetType+=f".{val_filter}"
 
-        curve_path_list,image_path_list = parse_datalist(curve_path_list,image_path_list)
-
+        curve_path_list_numpy,image_path_list_numpy = parse_datalist(curve_path_list,image_path_list)
         if (isinstance(curve_path_list,np.ndarray) and (not offline_data_location) and (not DATAROOT)) or not offline:
             print("use array input, and not set the offline data save path. We will not offline generated data.")
             offline_data_location = "offline_data"
@@ -261,7 +260,7 @@ class SMSDataset(BaseDataSet):
             if not offline_data_location:offline_data_location  = os.path.join(DATAROOT,self.DataSetType)
             if not os.path.exists(offline_data_location):os.mkdir(offline_data_location)
             if dataset_quantity is None or dataset_quantity == "latest" or len(os.listdir(offline_data_location))==0:
-                tail_curve_path_name   = len(os.listdir(curve_path_list)) if isinstance(curve_path_list,str) else len(curve_path_list)
+                tail_curve_path_name   = len(os.listdir(curve_path_list)) if isinstance(curve_path_list,str) else max(len(curve_path_list),len(curve_path_list_numpy))
             else:
                 tail_curve_path_name   = str(dataset_quantity)
             offline_curvedata_name,do_processing_IC_data,tail_curve_path_name =self.check_offine_exist(offline_data_location,r"{}_curvedata_[\d]*.npy".format(case_type),
@@ -280,8 +279,9 @@ class SMSDataset(BaseDataSet):
 
 
 
+
         if do_processing_IC_data or (offline == "force-curve"):
-            self.imagedata,self.curvedata = load_data_numpy(curve_path_list,image_path_list)
+            self.imagedata,self.curvedata = load_data_numpy(curve_path_list_numpy,image_path_list_numpy)
             # 'enhance' and x=1-x now is a default option
             # for sure the curve is noice-off and sensitive for 1 rather than 0
             # it will transform the origin complex curve to its norm
