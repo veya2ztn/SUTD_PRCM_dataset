@@ -212,7 +212,7 @@ class SMSDataset(BaseDataSet):
         assert curve_branch in self.allowed_curve_branch
         if isinstance(normf,str) or normf is None:
             if normf in self.allowed_normf:
-                logging_info('we will use {} norm on vector data'.format(normf))
+                logging_info('we will use 【{}】 norm on vector data'.format(normf))
                 self.normf      = normf
             else:
                 logging_info('please note this dataset force use none normf, your configuration {} is block'.format(normf))
@@ -505,6 +505,7 @@ class SMSDataset(BaseDataSet):
                      tuple2str(self.imagedata.shape),
                      tuple2str(self.vector.shape) if self.vector is not None else "generated"]]
             tp.table(data, headers,width=17)
+
     def check_offine_exist(self,offline_location,matcher_string,flag_num,force=False):
         pattener     = re.compile(matcher_string)
         has_offline  = check_has_file(offline_location,pattener)
@@ -617,14 +618,15 @@ class SMSDatasetN(SMSDataset):
             if accu_list is None:accu_list=self.get_default_accu_type()
             if   type_predicted == 'curve':
                 feaRs,feaPs,reals=data_import
+
                 if reals is None:
                     predict  = y_feat_p = self.invf(feaPs)
                     target   = y_feat_r = self.invf(feaRs)
                 else:
-                    feaPs   = self.recover(feaPs)
-                    feaRs   = self.recover(feaRs)
-                    predict  = feaPs
+                    predict  = feaPs   = self.recover(feaPs)
+                    #feaRs   = self.recover(feaRs)
                     target   = reals
+
             elif type_predicted in ['multihot','onehot','number','inverse']:
                 feaRs,feaPs,reals=data_import
                 predict  = feaPs
@@ -666,6 +668,7 @@ class SMSDatasetN(SMSDataset):
                         accu_type_real,_,accu_part =  accu_type.split("_")
                         predict_now = predict[list(range(*self.partIdx[accu_part]))]
                         target_now  =  target[list(range(*self.partIdx[accu_part]))]
+
                     loss_pool[accu_type] = criterion.loss_functions[accu_type_real](predict_now,target_now)
                 if not inter_process:
                     for accu_type in accu_list:

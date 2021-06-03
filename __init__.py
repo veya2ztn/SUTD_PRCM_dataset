@@ -25,7 +25,7 @@ def get_FAST_B1NE_dataset_online(OfflinedataRoot=DATAROOT,curve_branch='T',datas
     dataset_train.accu_list = ['MSError']
     return dataset_train,dataset_valid
 
-def get_FAST_B1NE_dataset(curve_branch='T',dataset="PLG",FeatureNum=128,range_clip=None,
+def get_FAST_B1NE_dataset(DATAROOT=DATAROOT,curve_branch='T',dataset="PLG",FeatureNum=128,range_clip=None,
                           type_predicted="curve",target_predicted="simple",download=True,normf='none',**kargs):
     DATASETROOT= os.path.join(DATAROOT,f"{dataset}DATASET")
     CURVETRAIN = f"{DATASETROOT}/train_data_list"
