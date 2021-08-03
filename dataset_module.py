@@ -282,6 +282,7 @@ class SMSDataset(BaseDataSet):
 
         if do_processing_IC_data or (offline == "force-curve"):
             self.imagedata,self.curvedata = load_data_numpy(curve_path_list_numpy,image_path_list_numpy)
+            print(self.curvedata.shape)
             # 'enhance' and x=1-x now is a default option
             # for sure the curve is noice-off and sensitive for 1 rather than 0
             # it will transform the origin complex curve to its norm
@@ -314,6 +315,7 @@ class SMSDataset(BaseDataSet):
 
             ## --> processing sampling
             data_origin_len = self.curvedata.shape[-1]
+
             if self.FeatureNum != data_origin_len and self.FeatureNum:
                 sample_index    = np.linspace(0,data_origin_len-1,self.FeatureNum).astype('int').tolist()
                 self.curvedata  = self.curvedata[...,sample_index]

@@ -17,7 +17,6 @@ class combination:
         else:
             self.image[point]= value
         return True
-
     def _add_block(self,value=1):
         #         ###
         #         ###
@@ -31,7 +30,6 @@ class combination:
         else:
             self.image[point]= value
         return True
-
     def _add_triangle_up(self,value=1):
         #          #
         #         ###
