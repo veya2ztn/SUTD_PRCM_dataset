@@ -15,6 +15,7 @@ from . import criterion
 
 logging_info = cPrint(True)
 def parse_datalist(curve_path_list,image_path_list):
+    if curve_path_list is None:return None,None
     if isinstance(curve_path_list,np.ndarray) and isinstance(image_path_list,np.ndarray):
         return curve_path_list,image_path_list
     if not isinstance(curve_path_list,list) and image_path_list is None:
@@ -247,8 +248,13 @@ class SMSDataset(BaseDataSet):
         if (val_filter is not None) and ('max' in val_filter):
             self.DataSetType+=f".{val_filter}"
 
+
+        ##############################################################
+        ####################### Offline Processing ##################
+        ##############################################################
+        ### get the unique offline dataset name from the configuration.
         curve_path_list_numpy,image_path_list_numpy = parse_datalist(curve_path_list,image_path_list)
-        if (isinstance(curve_path_list,np.ndarray) and (not offline_data_location) and (not DATAROOT)) or not offline:
+        if (isinstance(curve_path_list,np.ndarray) and (not offline_data_location) and (not DATAROOT)) or (not offline):
             print("use array input, and not set the offline data save path. We will not offline generated data.")
             offline_data_location = "offline_data"
             do_processing_IC_data = True
@@ -259,7 +265,8 @@ class SMSDataset(BaseDataSet):
             if DATAROOT is None:DATAROOT,_                      = os.path.split(curve_path_list)
             if not offline_data_location:offline_data_location  = os.path.join(DATAROOT,self.DataSetType)
             if not os.path.exists(offline_data_location):os.mkdir(offline_data_location)
-            if dataset_quantity is None or dataset_quantity == "latest" or len(os.listdir(offline_data_location))==0:
+            print(offline_data_location)
+            if (dataset_quantity is None) or (dataset_quantity == "latest") or (len(os.listdir(offline_data_location))==0):
                 tail_curve_path_name   = len(os.listdir(curve_path_list)) if isinstance(curve_path_list,str) else max(len(curve_path_list),len(curve_path_list_numpy))
             else:
                 tail_curve_path_name   = str(dataset_quantity)
@@ -276,9 +283,6 @@ class SMSDataset(BaseDataSet):
             offline_curvedata      = os.path.join(offline_data_location,offline_curvedata_name)
             offline_imagedata      = os.path.join(offline_data_location,offline_imagedata_name)
             offline_featdata       = os.path.join(offline_data_location,offline_featdata_name)
-
-
-
 
         if do_processing_IC_data or (offline == "force-curve"):
             self.imagedata,self.curvedata = load_data_numpy(curve_path_list_numpy,image_path_list_numpy)
@@ -448,8 +452,19 @@ class SMSDataset(BaseDataSet):
             logging_info('find offline feature data at --->|{}|<-----'.format(offline_featdata))
             self.vector = np.load(offline_featdata)
 
+
+
+
+
+
+
+
+
+
+
+
         self.imagedata = self.imagedata.reshape(-1,1,16,16)
-       # # if image_transfermer is not None:
+        ## if image_transfermer is not None:
         #     if image_transfermer == "1to1":
         #         self.imagedata = (self.imagedata - 0.5)/0.5
         #     elif image_transfermer == "contour":
@@ -470,7 +485,6 @@ class SMSDataset(BaseDataSet):
         #             self.imagedata = np.load(offline_contour)
         #     else:
         #         raise NotImplementedError
-
         # from numpy to torch.Tensor
         self.curvedata = np2torch(self.curvedata)
         self.imagedata = np2torch(self.imagedata)
@@ -517,12 +531,22 @@ class SMSDataset(BaseDataSet):
             #print("notice we will use ")
             return offline_name, False ,re.findall(r"([\d])",offline_name)[0]
         offline_name = matcher_string.replace("[\d]*","{}").format(flag_num)
-        do_process   = offline_name not in has_offline
-        if len(has_offline)>0 and do_process and force!="force":
-            print(f"detect unmatch between your assign data {offline_name} and offline data {has_offline}")
-            print("if you add new quantity to update the origin dataset, please re-offline the data, by set force=true")
-            raise
-        return offline_name, do_process, flag_num
+        offlinedQ    = offline_name in has_offline
+        if len(has_offline)==0:
+            print("Warning: No offline data detected, we will generate one")
+            return offline_name, True, flag_num
+        if not offlinedQ:
+            print(f"Warning: detect unmatch between your assign data {offline_name} and offline data {has_offline}")
+            if force=="force":
+                print(f"Warning: we will generate new")
+                return offline_name, True, flag_num
+            else:
+                print(f"Warning: we will use old offline data {has_offline[0]}")
+                return has_offline[0], False, flag_num
+        else:
+            return offline_name, False, flag_num
+
+
 
     def show_a_demo(self,num=None):
         if num is None:random_index = np.random.randint(0,self.length)

@@ -11,8 +11,9 @@ class cPrint:
 def download_dropbox_url(url,filepath,redownload=False):
     import requests
     DATAROOT,basename = os.path.split(filepath)
+    redownload = (redownload=='redownload')
     if os.path.exists(filepath) and (not redownload):
-        print(f"{filepath} has already downloaded, set redownload=True to force download")
+        print(f"{filepath} has already downloaded, set download='redownload' to force download")
     else:
         headers = {'user-agent': 'Wget/1.16 (linux-gnu)'}
         print(f"now we download {basename} from url {url}")

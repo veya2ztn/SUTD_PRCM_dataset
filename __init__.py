@@ -1,24 +1,27 @@
 from .dataset_module import *
 from .utils import download_dropbox_url
-#from .online_resource import online_path
+from .online_resource import online_path
 with open(f"{os.path.dirname(os.path.dirname(os.path.realpath(__file__)))}/.DATARoot.json",'r') as f:RootDict=json.load(f)
 DATAROOT  = RootDict['DATAROOT']
 SAVEROOT  = RootDict['SAVEROOT']
 
-
+curve_branch_flag = {"T":"1","1":"1","R":"2","2":"2","P":"3","3":"3"}
 def get_FAST_B1NE_dataset_online(OfflinedataRoot=DATAROOT,curve_branch='T',dataset="PLG",FeatureNum=128,range_clip=None,
-                          type_predicted="curve",target_predicted="simple",download=True,**kargs):
+                          type_predicted="curve",target_predicted="simple",download=True,normf="none",**kargs):
     DATASETROOT= os.path.join(OfflinedataRoot,f"{dataset}DATASET")
-    if not os.path.exists(DATASETROOT):os.makedirs(DATASETROOT)
-    download_url = online_path[f"{dataset}.B1NES{FeatureNum}"]
+    #DATASETROOT=OfflinedataRoot
+    DATAFLAG     = f'B{curve_branch_flag[curve_branch] }NES{FeatureNum}'
+    DATASETPATH= os.path.join(DATASETROOT,DATAFLAG)
+    if not os.path.exists(DATASETPATH):os.makedirs(DATASETPATH)
+    download_url = online_path[f"{dataset}.{DATAFLAG}"]
     file_name    = re.findall(r"(.*?)[\?]", download_url.split("/")[-1])[0]
-    filepath     = os.path.join(DATASETROOT,file_name)
-    if download:download_dropbox_url(download_url,filepath,download=="redownload")
+    filepath     = os.path.join(DATASETROOT,DATAFLAG,file_name)
+    if download:download_dropbox_url(download_url,filepath,download==download)
     dataset_train= SMSDatasetN(None,None,FeatureNum=FeatureNum,curve_branch=curve_branch,enhance_p='E',case_type='train',
-                                type_predicted=type_predicted,target_predicted=target_predicted,
+                                type_predicted=type_predicted,target_predicted=target_predicted,normf=normf,
                                 DATAROOT=DATASETROOT,
                                 **kargs)
-    dataset_valid= SMSDatasetN(None,None,FeatureNum=FeatureNum,curve_branch='T',enhance_p='E',case_type='test',
+    dataset_valid= SMSDatasetN(None,None,FeatureNum=FeatureNum,curve_branch=curve_branch,enhance_p='E',case_type='test',
                                 type_predicted=type_predicted,target_predicted=target_predicted,
                                 normf=[dataset_train.forf,dataset_train.invf],DATAROOT=DATASETROOT,
                                 **kargs)
@@ -35,7 +38,7 @@ def get_FAST_B1NE_dataset(DATAROOT=DATAROOT,curve_branch='T',dataset="PLG",Featu
     dataset_train= SMSDatasetN(CURVETRAIN,IMAGETRAIN,FeatureNum=FeatureNum,curve_branch=curve_branch,enhance_p='E',case_type='train',
                                 type_predicted=type_predicted,target_predicted=target_predicted,normf=normf,
                                 **kargs)
-    dataset_valid= SMSDatasetN(CURVE_TEST,IMAGE_TEST,FeatureNum=FeatureNum,curve_branch='T',enhance_p='E',case_type='test',
+    dataset_valid= SMSDatasetN(CURVE_TEST,IMAGE_TEST,FeatureNum=FeatureNum,curve_branch=curve_branch,enhance_p='E',case_type='test',
                                 type_predicted=type_predicted,target_predicted=target_predicted,
                                 normf=[dataset_train.forf,dataset_train.invf],
                                 **kargs)
