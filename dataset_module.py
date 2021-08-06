@@ -12,7 +12,6 @@ from .utils import *
 from .Curve2vector import IdentyProcess,CurveFourier,CurveWavelet
 from . import criterion
 
-
 logging_info = cPrint(True)
 def parse_datalist(curve_path_list,image_path_list):
     if curve_path_list is None:return None,None
@@ -48,7 +47,17 @@ def load_data_numpy(curve_path_list,image_path_list):
     imagedata = np.concatenate(imagedata)
     curvedata = np.concatenate(curvedata)
     return imagedata,curvedata
+curve_branch_flag = {"T":"1","1":"1","R":"2","2":"2","P":"3","3":"3"}
 
+def get_dataset_name(curve_branch= 'T',curve_flag='N',enhance_p='E',
+                          FeatureNum  = 1001,
+                          val_filter  = None,volume=None,range_clip=None,**kargs):
+    DataSetType = f'B{curve_branch_flag[str(curve_branch)]}{curve_flag}{enhance_p}S{FeatureNum}'
+    if range_clip is not None:
+        DataSetType+=f".{range_clip[0]}to{range_clip[1]}"
+    if (val_filter is not None) and ('max' in val_filter):
+        DataSetType+=f".{val_filter}"
+    return DataSetType
 
 class BaseDataSet(Dataset):
     DataSetType=""
@@ -233,20 +242,20 @@ class SMSDataset(BaseDataSet):
         ####################### Name Task ############################
         ##############################################################
         ### get the unique offline dataset name from the configuration.
-        curve_branch_flag = {"T":"1","1":"1","R":"2","2":"2","P":"3","3":"3"}
+
+        self.DataSetType = get_dataset_name(curve_branch=curve_branch,curve_flag=curve_flag,enhance_p=enhance_p,
+                                                 FeatureNum=FeatureNum,
+                                                 val_filter=None,volume=None,range_clip=None)
+
         if target_predicted in ['dct','rfft','fft']:
-            self.FeatureNum = 1001
-            self.transformer = CurveFourier(self.FeatureNum,target_predicted)
+            self.FeatureNum  = data_origin_len
+            self.transformer =  CurveFourier(self.FeatureNum,target_predicted)
         elif target_predicted in ['dwt','cplxdwt']:
-            self.FeatureNum = 1001
-            self.transformer = CurveWavelet(self.FeatureNum,target_predicted)
+            self.FeatureNum  = data_origin_len
+            self.transformer = CurveWavelet(data_origin_len,target_predicted)
         else:
             self.transformer= IdentyProcess()
-        self.DataSetType = f'B{curve_branch_flag[str(curve_branch)]}{curve_flag}{enhance_p}S{self.FeatureNum}'
-        if range_clip is not None:
-            self.DataSetType+=f".{range_clip[0]}to{range_clip[1]}"
-        if (val_filter is not None) and ('max' in val_filter):
-            self.DataSetType+=f".{val_filter}"
+
 
 
         ##############################################################
@@ -320,7 +329,7 @@ class SMSDataset(BaseDataSet):
             ## --> processing sampling
             data_origin_len = self.curvedata.shape[-1]
 
-            if self.FeatureNum != data_origin_len and self.FeatureNum:
+            if self.FeatureNum != data_origin_len and self.FeatureNum and isinstance(self.transformer,IdentyProcess):
                 sample_index    = np.linspace(0,data_origin_len-1,self.FeatureNum).astype('int').tolist()
                 self.curvedata  = self.curvedata[...,sample_index]
 
@@ -453,16 +462,6 @@ class SMSDataset(BaseDataSet):
             self.vector = np.load(offline_featdata)
 
 
-
-
-
-
-
-
-
-
-
-
         self.imagedata = self.imagedata.reshape(-1,1,16,16)
         ## if image_transfermer is not None:
         #     if image_transfermer == "1to1":
@@ -521,7 +520,6 @@ class SMSDataset(BaseDataSet):
                      tuple2str(self.imagedata.shape),
                      tuple2str(self.vector.shape) if self.vector is not None else "generated"]]
             tp.table(data, headers,width=17)
-
     def check_offine_exist(self,offline_location,matcher_string,flag_num,force=False):
         pattener     = re.compile(matcher_string)
         has_offline  = check_has_file(offline_location,pattener)
@@ -545,8 +543,6 @@ class SMSDataset(BaseDataSet):
                 return has_offline[0], False, flag_num
         else:
             return offline_name, False, flag_num
-
-
 
     def show_a_demo(self,num=None):
         if num is None:random_index = np.random.randint(0,self.length)
@@ -621,6 +617,8 @@ class SMSDataset(BaseDataSet):
             peak_data = 0*curve
             peak_data[peak_indx] = curve.max()
             plt.plot(x,curve_train,'r',x,peak_data,'b')
+
+
 class SMSDatasetN(SMSDataset):
     def __init__(self,curve_path_list,image_path_list,**kargs):
         super().__init__(curve_path_list,image_path_list,curve_flag='N',**kargs)
@@ -777,6 +775,13 @@ class SMSDatasetN(SMSDataset):
         elif loss_type == "FocalLoss1":self.vector=self.CEvector
         else:
             print("===== Not an aviliable Loss Function. We do nothing ========")
+    @staticmethod
+    def get_dataset_name(curve_branch= 'T',enhance_p='E',
+                              FeatureNum  = 1001,
+                              val_filter  = None,volume=None,range_clip=None,**kargs):
+        return get_dataset_name(curve_branch=curve_branch,curve_flag='N',enhance_p=enhance_p,
+                                     FeatureNum=FeatureNum,
+                                     val_filter=val_filter,volume=volume,range_clip=range_clip)
 class SMSDatasetC(SMSDataset):
     def __init__(self,curve_path_list,image_path_list,**kargs):
         super().__init__(curve_path_list,image_path_list,curve_flag='C',**kargs)
@@ -824,6 +829,13 @@ class SMSDatasetC(SMSDataset):
             raise NotImplementedError
         return criterion_class
 
+    @staticmethod
+    def get_dataset_name(curve_branch= 'T',enhance_p='E',
+                              FeatureNum  = 1001,
+                              val_filter  = None,volume=None,range_clip=None,**kargs):
+        return get_dataset_name(curve_branch=curve_branch,curve_flag='C',enhance_p=enhance_p,
+                                     FeatureNum=FeatureNum,
+                                     val_filter=val_filter,volume=volume,range_clip=range_clip)
 class SMSDatasetB1NES32(SMSDatasetN):
     def __init__(self,curve_path_list,image_path_list,**kargs):
         super().__init__(curve_path_list,image_path_list,FeatureNum=32,curve_branch='T',enhance_p='E',**kargs)

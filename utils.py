@@ -16,7 +16,7 @@ def download_dropbox_url(url,filepath,redownload=False):
         print(f"{filepath} has already downloaded, set download='redownload' to force download")
     else:
         headers = {'user-agent': 'Wget/1.16 (linux-gnu)'}
-        print(f"now we download {basename} from url {url}")
+        print(f"now we download {basename} from url {url} into \n {filepath}")
         r = requests.get(url, stream=True, headers=headers)
         with open(filepath, 'wb') as f:
             for chunk in r.iter_content(chunk_size=1024):
