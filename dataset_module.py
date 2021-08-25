@@ -210,7 +210,7 @@ class SMSDataset(BaseDataSet):
 
     allowed_curve_branch   = ["T",1,"R",2,"P",3]
     allowed_normf          = list(norm_dict.keys())+['none']
-    #data_field = 'real'
+
 
     def __init__(self,curve_path_list,image_path_list,FeatureNum=1001,curve_branch='T',curve_flag='N',
                       type_predicted=None,target_predicted=None,normf='none',enhance_p='E',
@@ -620,8 +620,11 @@ class SMSDataset(BaseDataSet):
 
 
 class SMSDatasetN(SMSDataset):
+    data_field = 'real'
     def __init__(self,curve_path_list,image_path_list,**kargs):
+
         super().__init__(curve_path_list,image_path_list,curve_flag='N',**kargs)
+
     def get_default_accu_type(self):
         type_predicted  =self.type_predicted
         target_predicted=self.target_predicted
@@ -642,13 +645,18 @@ class SMSDatasetN(SMSDataset):
             if accu_list is None:accu_list=self.get_default_accu_type()
             if   type_predicted == 'curve':
                 feaRs,feaPs,reals=data_import
-
+                # the reals is the curve before normalization
+                # the feaRs is the normalized curve
+                # the feaPs is the predicted normalized curve
+                # when train, inter_process is False, only compare the MSE between normlized curve
+                # when inter_process is True, will compare the MSE between origin curve
+                # then the self.recover(feaRs) become the compress-decompress curve
                 if reals is None:
                     predict  = y_feat_p = self.invf(feaPs)
                     target   = y_feat_r = self.invf(feaRs)
                 else:
-                    predict  = feaPs   = self.recover(feaPs)
-                    #feaRs   = self.recover(feaRs)
+                    predict  = self.recover(feaPs)
+                    reconst  = self.recover(feaRs)
                     target   = reals
 
             elif type_predicted in ['multihot','onehot','number','inverse']:
@@ -667,12 +675,12 @@ class SMSDatasetN(SMSDataset):
                 feaRs,feaPs,reals=data_import
                 print('for combination part, you need check ')
                 raise NotImplementedError
+
             if type_predicted in ['tandem' ,'demtan','GAN']:
                 Feat_Real,Feat_Pred,Imag_Real,Imag_Pred=data_import
                 if type_predicted == 'GAN':Feat_Real=Feat_Real[...,:self.vector.shape[-1]]
                 loss_pool  = {}
                 for accu_type in accu_list:
-
                     if 'Binary' in accu_type:
                         loss_pool[accu_type] = criterion.loss_functions[accu_type](Imag_Pred,Imag_Real)
                     else:
@@ -692,14 +700,13 @@ class SMSDatasetN(SMSDataset):
                         accu_type_real,_,accu_part =  accu_type.split("_")
                         predict_now = predict[list(range(*self.partIdx[accu_part]))]
                         target_now  =  target[list(range(*self.partIdx[accu_part]))]
-
                     loss_pool[accu_type] = criterion.loss_functions[accu_type_real](predict_now,target_now)
                 if not inter_process:
                     for accu_type in accu_list:
                         loss_pool[accu_type] = loss_pool[accu_type].mean().item()
                     return loss_pool
                 else:
-                    return loss_pool,(feaPs,feaRs,reals)
+                    return loss_pool,(predict,reconst,target)
     def criterion(self,custom_type='default'):
         if custom_type == 'default':
             type_predicted = self.type_predicted
@@ -783,6 +790,7 @@ class SMSDatasetN(SMSDataset):
                                      FeatureNum=FeatureNum,
                                      val_filter=val_filter,volume=volume,range_clip=range_clip)
 class SMSDatasetC(SMSDataset):
+    data_field = 'complex'
     def __init__(self,curve_path_list,image_path_list,**kargs):
         super().__init__(curve_path_list,image_path_list,curve_flag='C',**kargs)
     def get_default_accu_type(self):
