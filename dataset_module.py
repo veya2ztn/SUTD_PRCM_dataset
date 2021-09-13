@@ -220,6 +220,7 @@ class SMSDataset(BaseDataSet):
                       image_transfermer=None,**kargs):
         logging_info = cPrint(verbose)
         assert curve_branch in self.allowed_curve_branch
+
         if isinstance(normf,str) or normf is None:
             if normf in self.allowed_normf:
                 logging_info('we will use 【{}】 norm on vector data'.format(normf))
@@ -245,7 +246,7 @@ class SMSDataset(BaseDataSet):
 
         self.DataSetType = get_dataset_name(curve_branch=curve_branch,curve_flag=curve_flag,enhance_p=enhance_p,
                                                  FeatureNum=FeatureNum,
-                                                 val_filter=None,volume=None,range_clip=None)
+                                                 val_filter=val_filter,volume=volume,range_clip=range_clip)
 
         if target_predicted in ['dct','rfft','fft']:
             self.FeatureNum  = data_origin_len
@@ -255,7 +256,6 @@ class SMSDataset(BaseDataSet):
             self.transformer = CurveWavelet(data_origin_len,target_predicted)
         else:
             self.transformer= IdentyProcess()
-
 
 
         ##############################################################
@@ -295,7 +295,6 @@ class SMSDataset(BaseDataSet):
 
         if do_processing_IC_data or (offline == "force-curve"):
             self.imagedata,self.curvedata = load_data_numpy(curve_path_list_numpy,image_path_list_numpy)
-            print(self.curvedata.shape)
             # 'enhance' and x=1-x now is a default option
             # for sure the curve is noice-off and sensitive for 1 rather than 0
             # it will transform the origin complex curve to its norm
@@ -321,18 +320,17 @@ class SMSDataset(BaseDataSet):
             elif enhance_p=='D':self.curvedata  = np.round(self.curvedata,6)
             elif enhance_p=='N':self.curvedata  = self.curvedata
             else:raise NotImplementedError
-
-
+            print(self.curvedata.shape)
             if range_clip is not None:
                 self.curvedata=self.curvedata[...,int(range_clip[0]):int(range_clip[1])]
-
+            print(self.curvedata.shape)    
             ## --> processing sampling
             data_origin_len = self.curvedata.shape[-1]
-
+            assert self.FeatureNum<=data_origin_len
+            # the self.FeatureNum can big than data_origin_len but it just copy value to extand
             if self.FeatureNum != data_origin_len and self.FeatureNum and isinstance(self.transformer,IdentyProcess):
                 sample_index    = np.linspace(0,data_origin_len-1,self.FeatureNum).astype('int').tolist()
                 self.curvedata  = self.curvedata[...,sample_index]
-
             if (val_filter is not None) and ('max' in val_filter):
                 assert curve_flag =='N'
                 value =  float(val_filter.replace('max',""))/100
