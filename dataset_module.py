@@ -49,9 +49,13 @@ def load_data_numpy(curve_path_list,image_path_list):
     return imagedata,curvedata
 curve_branch_flag = {"T":"1","1":"1","R":"2","2":"2","P":"3","3":"3"}
 
-def get_dataset_name(curve_branch= 'T',curve_flag='N',enhance_p='E',
-                          FeatureNum  = 1001,
-                          val_filter  = None,volume=None,range_clip=None,**kargs):
+def get_dataset_name(curve_branch= None,curve_flag=None,enhance_p=None,FeatureNum  = None,
+                     val_filter  = None,volume=None,range_clip=None,**kargs):
+    assert curve_branch is not None
+    assert curve_flag is not None
+    assert enhance_p is not None
+    assert FeatureNum is not None
+    # curve_branch= 'T',curve_flag='N',enhance_p='E',FeatureNum  = 1001,
     DataSetType = f'B{curve_branch_flag[str(curve_branch)]}{curve_flag}{enhance_p}S{FeatureNum}'
     if range_clip is not None:
         DataSetType+=f".{range_clip[0]}to{range_clip[1]}"
@@ -842,15 +846,30 @@ class SMSDatasetC(SMSDataset):
         return get_dataset_name(curve_branch=curve_branch,curve_flag='C',enhance_p=enhance_p,
                                      FeatureNum=FeatureNum,
                                      val_filter=val_filter,volume=volume,range_clip=range_clip)
+
+
 class SMSDatasetB1NES32(SMSDatasetN):
     def __init__(self,curve_path_list,image_path_list,**kargs):
         super().__init__(curve_path_list,image_path_list,FeatureNum=32,curve_branch='T',enhance_p='E',**kargs)
+    @staticmethod
+    def get_dataset_name(**kargs):
+        return get_dataset_name(curve_flag='N',FeatureNum=32,curve_branch='T',enhance_p='E',**kargs)
 class SMSDatasetB1NES128(SMSDatasetN):
     def __init__(self,curve_path_list,image_path_list,**kargs):
         super().__init__(curve_path_list,image_path_list,FeatureNum=128,curve_branch='T',enhance_p='E',**kargs)
+    @staticmethod
+    def get_dataset_name(**kargs):
+        return get_dataset_name(curve_flag='N',FeatureNum=128,curve_branch='T',enhance_p='E',**kargs)
 class SMSDatasetB1NES1001(SMSDatasetN):
     def __init__(self,curve_path_list,image_path_list,**kargs):
         super().__init__(curve_path_list,image_path_list,FeatureNum=1001,curve_branch='T',enhance_p='E',**kargs)
+    @staticmethod
+    def get_dataset_name(**kargs):
+        return get_dataset_name(curve_flag='N',FeatureNum=1001,curve_branch='T',enhance_p='E',**kargs)
+
 class SMSDatasetB1CES32(SMSDatasetC):
     def __init__(self,curve_path_list,image_path_list,**kargs):
         super().__init__(curve_path_list,image_path_list,FeatureNum=32,curve_branch='T',enhance_p='E',**kargs)
+    @staticmethod
+    def get_dataset_name(**kargs):
+        return get_dataset_name(curve_flag='C',FeatureNum=128,curve_branch='T',enhance_p='E',**kargs)
