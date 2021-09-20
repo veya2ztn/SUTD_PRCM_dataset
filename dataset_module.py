@@ -320,10 +320,10 @@ class SMSDataset(BaseDataSet):
             elif enhance_p=='D':self.curvedata  = np.round(self.curvedata,6)
             elif enhance_p=='N':self.curvedata  = self.curvedata
             else:raise NotImplementedError
-            print(self.curvedata.shape)
+
             if range_clip is not None:
                 self.curvedata=self.curvedata[...,int(range_clip[0]):int(range_clip[1])]
-            print(self.curvedata.shape)    
+
             ## --> processing sampling
             data_origin_len = self.curvedata.shape[-1]
             assert self.FeatureNum<=data_origin_len
