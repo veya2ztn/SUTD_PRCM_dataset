@@ -6,7 +6,7 @@ DATAROOT  = RootDict['DATAROOT']
 SAVEROOT  = RootDict['SAVEROOT']
 
 curve_branch_flag = {"T":"1","1":"1","R":"2","2":"2","P":"3","3":"3"}
-def get_FAST_B1NE_dataset_online(OfflinedataRoot=DATAROOT,curve_branch='T',dataset="PLG",FeatureNum=128,range_clip=None,
+def get_FAST_B1NE_dataset_online(OfflinedataRoot=DATAROOT,curve_branch='T',dataset="RDN",FeatureNum=128,range_clip=None,
                           type_predicted="curve",target_predicted="simple",download=True,normf="none",**kargs):
     DATASETROOT= os.path.join(OfflinedataRoot,f"{dataset}DATASET")
     #DATASETROOT=OfflinedataRoot
@@ -28,7 +28,7 @@ def get_FAST_B1NE_dataset_online(OfflinedataRoot=DATAROOT,curve_branch='T',datas
     dataset_train.accu_list = ['MSError']
     return dataset_train,dataset_valid
 
-def get_FAST_B1NE_dataset(DATAROOT=DATAROOT,curve_branch='T',dataset="PLG",FeatureNum=128,
+def get_FAST_B1NE_dataset(DATAROOT=DATAROOT,curve_branch='T',dataset="RDN",FeatureNum=128,
                           type_predicted="curve",target_predicted="simple",download=True,normf='none',**kargs):
     DATASETROOT= os.path.join(DATAROOT,f"{dataset}DATASET")
     CURVETRAIN = f"{DATASETROOT}/train_data_list"
@@ -47,13 +47,15 @@ def get_FAST_B1NE_dataset(DATAROOT=DATAROOT,curve_branch='T',dataset="PLG",Featu
 
 
 def get_balance_2_classifier_dataset(loseFunction="CELoss",
-         CURVETRAIN = f"{DATAROOT}/randomly_data_valid_3000/train_data_list",
-         IMAGETRAIN = None,
-         CURVE_TEST = f"{DATAROOT}/randomly_data_valid_3000/valid_data_list",
-         IMAGE_TEST = None,curve_branch='T',**kargs):
-    type_predicted = "onehot"
-    target_predicted="balance_leftorright"
-    FeatureNum=128
+         DATAROOT=DATAROOT,dataset="RDN",
+         curve_branch='T',**kargs):
+    DATASETROOT= os.path.join(DATAROOT,f"{dataset}DATASET")
+    CURVETRAIN = f"{DATASETROOT}/train_data_list"
+    IMAGETRAIN = IMAGE_TEST = None
+    CURVE_TEST = f"{DATASETROOT}/valid_data_list"
+    type_predicted  = "onehot"
+    target_predicted= "balance_leftorright"
+    FeatureNum      = 128
     dataset_train= SMSDatasetN(CURVETRAIN,IMAGETRAIN,FeatureNum=FeatureNum,curve_branch=curve_branch,enhance_p="E",case_type='train',
                                 type_predicted=type_predicted,target_predicted=target_predicted,
                                 **kargs)
