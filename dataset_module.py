@@ -646,6 +646,7 @@ class SMSDatasetN(SMSDataset):
             target_predicted=self.target_predicted
             if accu_list is None:accu_list=self.get_default_accu_type()
             if   type_predicted == 'curve':
+                predict,reconst,target= None
                 feaRs,feaPs,reals=data_import
                 # the reals is the curve before normalization
                 # the feaRs is the normalized curve
