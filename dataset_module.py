@@ -314,7 +314,7 @@ class SMSDataset(BaseDataSet):
                 self.curvedata  = 1-self.curvedata
             elif 'B1C' in self.DataSetType:
                 self.curvedata  = self.curvedata[...,0:1,:]
-            elif 'B1C' in self.DataSetType:
+            elif 'B2C' in self.DataSetType:
                 self.curvedata  = self.curvedata[...,1:2,:]
             elif 'B3C' in self.DataSetType:
                 self.curvedata  = self.curvedata
@@ -644,9 +644,9 @@ class SMSDatasetN(SMSDataset):
             # accu_list =['MAError','MSError','MsaError','MseaError']
             type_predicted  =self.type_predicted
             target_predicted=self.target_predicted
+            predict=reconst=target= None
             if accu_list is None:accu_list=self.get_default_accu_type()
             if   type_predicted == 'curve':
-                predict,reconst,target= None
                 feaRs,feaPs,reals=data_import
                 # the reals is the curve before normalization
                 # the feaRs is the normalized curve
