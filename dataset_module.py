@@ -20,7 +20,7 @@ def parse_datalist(curve_path_list,image_path_list):
     if not isinstance(curve_path_list,list) and image_path_list is None:
     	# this code reveal the curve file and image file from a high level path ../Data##
         if not os.path.exists(curve_path_list):return None,None
-    	curve_path_list,image_path_list = convertlist(curve_path_list)
+        curve_path_list,image_path_list = convertlist(curve_path_list)
     if isinstance(curve_path_list,str) and isinstance(image_path_list,str):
     	# this code for single image and curve file
     	if os.path.isfile(curve_path_list) and os.path.isfile(image_path_list):
@@ -281,7 +281,13 @@ class SMSDataset(BaseDataSet):
             if not os.path.exists(offline_data_location):os.mkdir(offline_data_location)
             print(offline_data_location)
             if (dataset_quantity is None) or (dataset_quantity == "latest") or (len(os.listdir(offline_data_location))==0):
-                tail_curve_path_name   = len(os.listdir(curve_path_list)) if isinstance(curve_path_list,str) else max(len(curve_path_list),len(curve_path_list_numpy))
+                if isinstance(curve_path_list,str):
+                    if not os.path.exists(curve_path_list):
+                        tail_curve_path_name = 0
+                    else:
+                        tail_curve_path_name   = len(os.listdir(curve_path_list))
+                else:
+                    tail_curve_path_name = max(len(curve_path_list),len(curve_path_list_numpy))
             else:
                 tail_curve_path_name   = str(dataset_quantity)
             offline_curvedata_name,do_processing_IC_data,tail_curve_path_name =self.check_offine_exist(offline_data_location,r"{}_curvedata_[\d]*.npy".format(case_type),
