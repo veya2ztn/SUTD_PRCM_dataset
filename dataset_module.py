@@ -19,6 +19,7 @@ def parse_datalist(curve_path_list,image_path_list):
         return curve_path_list,image_path_list
     if not isinstance(curve_path_list,list) and image_path_list is None:
     	# this code reveal the curve file and image file from a high level path ../Data##
+        if not os.path.exists(curve_path_list):return None,None
     	curve_path_list,image_path_list = convertlist(curve_path_list)
     if isinstance(curve_path_list,str) and isinstance(image_path_list,str):
     	# this code for single image and curve file
