@@ -215,7 +215,9 @@ class MSELoss(MyLoss):
         return mean_stratage(loss,self.reduction)
 class CrossEntropyLoss(MyLoss):
     def forward(self, x,target):
-        loss = torch.nn.CrossEntropyLoss(reduction='none')(x,target.flatten().long())
+        if len(x.shape) != len(target.shape):
+            x = x.squeeze()
+        loss = torch.nn.CrossEntropyLoss(reduction='none')(x,target.long())
         return mean_stratage(loss,self.reduction)
 class BCEWithLogitsLoss(MyLoss):
     def forward(self, x,target):
