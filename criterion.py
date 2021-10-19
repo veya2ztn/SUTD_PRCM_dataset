@@ -155,7 +155,7 @@ class ClassifierAccuAll(MyLoss):
         assert len(predict.shape) >= 2
         if predict.shape[-1] >= 2 and len(target.shape)==1:
             # one-hot
-            predict = predict.max(-1)[-1] # the position
+            predict = predict.max(-1)[-1].flatten() # the position
             loss = 1-(target.long()==predict).float().mean()
             return mean_stratage(loss,self.reduction)
         assert len(target.shape) == len(predict.shape)
@@ -171,7 +171,7 @@ class ClassifierAccuPos(MyLoss):
     def forward(self,predict,target):
         assert len(predict.shape) >= 2
         if predict.shape[-1] >= 2 and len(target.shape)==1:
-            predict = predict.max(-1)[-1] # the position
+            predict = predict.max(-1)[-1].flatten() # the position
             loss = 1-(target.long()==predict)[target==1].float().mean()
             return mean_stratage(loss,self.reduction)
         assert len(target.shape) == len(predict.shape)
@@ -189,7 +189,7 @@ class ClassifierAccuNeg(MyLoss):
     def forward(self,predict,target):
         assert len(predict.shape) >= 2
         if predict.shape[-1] >= 2 and len(target.shape)==1:
-            predict = predict.max(-1)[-1] # the position
+            predict = predict.max(-1)[-1].flatten() # the position
             loss = 1-(target.long()==predict)[target==0].float().mean()
             return mean_stratage(loss,self.reduction)
         assert len(target.shape) == len(predict.shape)
