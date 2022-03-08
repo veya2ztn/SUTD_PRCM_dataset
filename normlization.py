@@ -2,6 +2,7 @@ import numpy as np
 import os,json,time,math,shutil,random
 import torch
 from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
 class heq_base:
     def __init__(self,**kargs):
         self.original_data_hist  = None

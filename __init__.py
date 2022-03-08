@@ -1,4 +1,5 @@
 from .dataset_module import *
+from .MNIST_dataset import MNISTdataset
 from .utils import download_dropbox_url
 from .online_resource import online_path
 with open(f"{os.path.dirname(os.path.dirname(os.path.realpath(__file__)))}/.DATARoot.json",'r') as f:RootDict=json.load(f)

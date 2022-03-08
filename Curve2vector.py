@@ -378,11 +378,18 @@ class CurveWavelet(CurveProcesser):
         vector = self.check_data(vector,VectorComplexQ)
         if type(vector) not in self.vector_dtype:
             vector = self.change_tensor_type(vector,self.vector_dtype[0])
-        assert vector.shape[-1] == self.out_dim
-        other_part_shape = list(vector.shape)[:-1]
+        if len(vector.shape)==1:
+            vector = np.pad(vector,[[0,self.out_dim-vector.shape[-1]]])
+        elif len(vector.shape)==2:
+            vector = np.pad(vector,[[0,0],[0,self.out_dim-vector.shape[-1]]])
+        elif len(vector.shape)==3:
+            vector = np.pad(vector,[[0,0],[0,0],[0,self.out_dim-vector.shape[-1]]])
+        else:
+            raise NotImplementedError
         out = np.split(vector,np.cumsum(self.channel[:self.out_num]),-1)[:-1]
-        for c in self.channel[self.out_num:]:
-            out.append(np.zeros(other_part_shape+[c]))
+        # other_part_shape = list(vector.shape)[:-1]
+        # for c in self.channel[self.out_num:]:
+        #     out.append(np.zeros(other_part_shape+[c]))
         return out
 
     def output_dim(self,num):
