@@ -4,8 +4,11 @@ This is the SUTD PRT dataset for Metasurface Machine Learning.
 
 The full dataset is a 8G file and can be download here:
 
-  -  [Google drive](https://drive.google.com/file/d/1mVUwwFr0atS0nHSRjyCFCXDW-627iUxI/view?usp=sharing) 
-
+<!--   -  [Google drive](https://drive.google.com/file/d/1mVUwwFr0atS0nHSRjyCFCXDW-627iUxI/view?usp=sharing)  -->
+- [PLG DATASET] https://drive.google.com/file/d/1Q69avKkWlpHimfsPT-kQdHOL73PcQmiO/view?usp=sharing, 
+- [PLR DATASET] https://drive.google.com/file/d/1WdQfb3yqLbusvXdtvonK4pGObyXSx7QO/view?usp=sharing, 
+- [PTN DATASET] https://drive.google.com/file/d/1aunyk9f-oLIV5Zp4jp4a4SAnQB79U8Vp/view?usp=sharing, 
+- [RDN DATASET] https://drive.google.com/file/d/1nZzlnJfyBN2ukchr-f-1RwsDKB8WKazB/view?usp=sharing
 ## Introduction
 
 This dataset is consist of 30k+60k+60k+110k 「image($16\times16)$」- 「complex value curve $2\times1001$」pair.
