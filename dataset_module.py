@@ -472,6 +472,7 @@ class SMSDataset(BaseDataSet):
 
 
         self.imagedata = self.imagedata.reshape(-1,1,16,16)
+
         ## if image_transfermer is not None:
         #     if image_transfermer == "1to1":
         #         self.imagedata = (self.imagedata - 0.5)/0.5
@@ -498,6 +499,19 @@ class SMSDataset(BaseDataSet):
         self.imagedata = np2torch(self.imagedata)
         self.vector    = np2torch(self.vector)
 
+        if image_transfermer is not None:
+            if image_transfermer == "fft16x9_norm":
+                flag = re.findall(r"/(.*?)DATASET",curve_path_list)[0].split('/')[-1]
+                print(f"use fft16x9_norm of {flag} DATASET")
+                with open(f"dataset/mean_std_info/fft16x9_statistic_info_{flag}.json","r") as f:
+                    fft16x9_statistic_info = json.load(f)
+                    mean_info = torch.Tensor(fft16x9_statistic_info['mean'])
+                    std_info  = torch.Tensor(fft16x9_statistic_info['std'])
+                fM = abs(torch.fft.fftshift(torch.fft.rfft2(self.imagedata,norm='ortho')))
+                fM = (fM - mean_info)/std_info
+                self.imagedata = fM
+            else:
+                raise NotImplementedError
         # normlization part
         self.forf,self.invf = self.structure_normer()
         self.vector         = self.forf(self.vector)
