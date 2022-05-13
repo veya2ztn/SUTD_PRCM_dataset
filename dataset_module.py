@@ -222,7 +222,7 @@ class SMSDataset(BaseDataSet):
                       offline=True,offline_data_location=None,DATAROOT=None,dataset_quantity=None,case_type='train',
                       partIdx=None,
                       val_filter=None,volume=None,range_clip=None,verbose=True,
-                      image_transfermer=None,**kargs):
+                      image_transformer=None,**kargs):
         logging_info = cPrint(verbose)
         assert curve_branch in self.allowed_curve_branch
 
@@ -473,10 +473,10 @@ class SMSDataset(BaseDataSet):
 
         self.imagedata = self.imagedata.reshape(-1,1,16,16)
 
-        ## if image_transfermer is not None:
-        #     if image_transfermer == "1to1":
+        ## if image_transformer is not None:
+        #     if image_transformer == "1to1":
         #         self.imagedata = (self.imagedata - 0.5)/0.5
-        #     elif image_transfermer == "contour":
+        #     elif image_transformer == "contour":
         #         logging_info('=== using image 【contour】 as input ====')
         #         offline_contour = os.path.join(offline_data_location,offline_imagedata_name.replace('image','contour'))
         #         offline_edgepix = os.path.join(offline_data_location,offline_imagedata_name.replace('image','edge'))
@@ -499,8 +499,8 @@ class SMSDataset(BaseDataSet):
         self.imagedata = np2torch(self.imagedata)
         self.vector    = np2torch(self.vector)
 
-        if image_transfermer is not None:
-            if image_transfermer == "fft16x9_norm":
+        if image_transformer is not None:
+            if "fft16x9" in image_transformer:
                 flag = re.findall(r"/(.*?)DATASET",curve_path_list)[0].split('/')[-1]
                 print(f"use fft16x9_norm of {flag} DATASET")
                 with open(f"dataset/mean_std_info/fft16x9_statistic_info_{flag}.json","r") as f:
@@ -508,10 +508,25 @@ class SMSDataset(BaseDataSet):
                     mean_info = torch.Tensor(fft16x9_statistic_info['mean'])
                     std_info  = torch.Tensor(fft16x9_statistic_info['std'])
                 fM = abs(torch.fft.fftshift(torch.fft.rfft2(self.imagedata,norm='ortho')))
-                fM = (fM - mean_info)/std_info
+                if image_transformer == "fft16x9_norm":
+                    fM = (fM - mean_info)/std_info
+                elif image_transformer == "fft16x9_norm_clamp01":
+                    for i in range(16):
+                        for j in range(9):
+                            if i==8 and j==4:
+                                fM[...,i,j] = (fM[...,i,j] - mean_info[...,i,j])/std_info[...,i,j]
+                            else:
+                                fM[...,i,j] = torch.clamp(fM[...,i,j],0,1.75)/1.75
+                elif image_transformer == "fft16x9_norm_center":
+                    fM[...,8,4] = (fM[...,8,4] - mean_info[...,8,4])/std_info[...,8,4]
+                else:
+                    raise NotImplementedError
                 self.imagedata = fM
             else:
                 raise NotImplementedError
+
+
+
         # normlization part
         self.forf,self.invf = self.structure_normer()
         self.vector         = self.forf(self.vector)
