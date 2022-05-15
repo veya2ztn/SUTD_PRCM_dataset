@@ -776,6 +776,7 @@ class SMSDatasetN(SMSDataset):
         elif custom_type == 'TandemLossSSIM':criterion_class = criterion.TandemLossSSIM
         elif custom_type == 'FocalLoss':criterion_class = criterion.FocalLoss
         elif custom_type == 'BCELoss':criterion_class    = criterion.BCEWithLogitsLoss
+        elif custom_type == 'BCEWithLogitsLoss':criterion_class    = criterion.BCEWithLogitsLoss
         elif custom_type == 'CELoss':criterion_class     = criterion.CrossEntropyLoss
         elif custom_type == 'FocalLoss1':criterion_class = criterion.FocalLossWrapper(gamma=1.1, alpha=0.5)
         else:
