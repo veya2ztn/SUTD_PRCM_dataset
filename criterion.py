@@ -424,6 +424,7 @@ loss_functions['BinaryEntropy']  = ImageEntropy(reduction = 'per_batch')
 loss_functions['ComplexMSE']     = ComplexMSELoss(reduction = 'per_batch')
 loss_functions['NormMSE']        = NormMSELoss(reduction = 'per_batch')
 loss_functions['FocalLoss']      = FocalLoss(reduction = 'per_batch')
+loss_functions['BCEWithLogitsLoss']= BCEWithLogitsLoss(reduction = 'per_batch')
 
 loss_functions['OneHotError']    = OnehotBingo(reduction = 'per_batch')
 loss_functions['OneHotP']        = OnehotPositive(reduction = 'per_batch')
