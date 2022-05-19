@@ -522,6 +522,9 @@ class SMSDataset(BaseDataSet):
                 else:
                     raise NotImplementedError
                 self.imagedata = fM
+            elif image_transformer == "-0.5-0.5":
+                fM = self.imagedata - 0.5
+                self.imagedata = fM
             else:
                 raise NotImplementedError
 
