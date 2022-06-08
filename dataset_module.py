@@ -501,27 +501,42 @@ class SMSDataset(BaseDataSet):
 
         if image_transformer is not None:
             if "fft16x9" in image_transformer:
-                flag = re.findall(r"/(.*?)DATASET",curve_path_list)[0].split('/')[-1]
-                print(f"use fft16x9_norm of {flag} DATASET")
-                with open(f"dataset/mean_std_info/fft16x9_statistic_info_{flag}.json","r") as f:
-                    fft16x9_statistic_info = json.load(f)
-                    mean_info = torch.Tensor(fft16x9_statistic_info['mean'])
-                    std_info  = torch.Tensor(fft16x9_statistic_info['std'])
-                fM = abs(torch.fft.fftshift(torch.fft.rfft2(self.imagedata,norm='ortho')))
-                if image_transformer == "fft16x9_norm":
-                    fM = (fM - mean_info)/std_info
-                elif image_transformer == "fft16x9_norm_clamp01":
-                    for i in range(16):
-                        for j in range(9):
-                            if i==8 and j==4:
-                                fM[...,i,j] = (fM[...,i,j] - mean_info[...,i,j])/std_info[...,i,j]
-                            else:
-                                fM[...,i,j] = torch.clamp(fM[...,i,j],0,1.75)/1.75
-                elif image_transformer == "fft16x9_norm_center":
-                    fM[...,8,4] = (fM[...,8,4] - mean_info[...,8,4])/std_info[...,8,4]
-                else:
-                    raise NotImplementedError
-                self.imagedata = fM
+                if "fft16x9_norm" in image_transformer:
+                    flag = re.findall(r"/(.*?)DATASET",curve_path_list)[0].split('/')[-1]
+                    print(f"use fft16x9_norm of {flag} DATASET")
+                    with open(f"dataset/mean_std_info/fft16x9_statistic_info_{flag}.json","r") as f:
+                        fft16x9_statistic_info = json.load(f)
+                        mean_info = torch.Tensor(fft16x9_statistic_info['mean'])
+                        std_info  = torch.Tensor(fft16x9_statistic_info['std'])
+                    fM = abs(torch.fft.fftshift(torch.fft.rfft2(self.imagedata,norm='ortho')))
+                    if image_transformer == "fft16x9_norm":
+                        fM = (fM - mean_info)/(std_info+1e-10)
+                    elif image_transformer == "fft16x9_norm_clamp01":
+                        for i in range(16):
+                            for j in range(9):
+                                if i==8 and j==4:
+                                    fM[...,i,j] = (fM[...,i,j] - mean_info[...,i,j])/std_info[...,i,j]
+                                else:
+                                    fM[...,i,j] = torch.clamp(fM[...,i,j],0,1.75)/1.75
+                    elif image_transformer == "fft16x9_norm_center":
+                        fM[...,8,4] = (fM[...,8,4] - mean_info[...,8,4])/std_info[...,8,4]
+                    else:
+                        raise NotImplementedError
+                    self.imagedata = fM
+                elif "fft16x9_complex" in image_transformer:
+                    flag = re.findall(r"/(.*?)DATASET",curve_path_list)[0].split('/')[-1]
+                    print(f"use fft16x9_complex of {flag} DATASET")
+                    with open(f"dataset/mean_std_info/fft16x9_complex_statistic_info_{flag}.json","r") as f:
+                        fft16x9_statistic_info = json.load(f)
+                        mean_info_real = torch.Tensor(fft16x9_statistic_info['mean']['real'])
+                        std_info_real  = torch.Tensor(fft16x9_statistic_info['std']['real'])
+                        mean_info_imag = torch.Tensor(fft16x9_statistic_info['mean']['imag'])
+                        std_info_imag  = torch.Tensor(fft16x9_statistic_info['std']['imag'])
+                    fM   = torch.fft.fftshift(torch.fft.rfft2(self.imagedata,norm='ortho'))
+                    real = (fM.real - mean_info_real)/(std_info_real+1e-10)
+                    imag = (fM.imag - mean_info_imag)/(std_info_imag+1e-10)
+                    fM   = torch.view_as_complex(torch.stack([real,imag],-1))
+                    self.imagedata = fM
             elif image_transformer == "-0.5-0.5":
                 fM = self.imagedata - 0.5
                 self.imagedata = fM
