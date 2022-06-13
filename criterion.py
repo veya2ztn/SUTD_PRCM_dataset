@@ -398,12 +398,20 @@ class TandemLossSSIM(MyLoss):
 class ComplexMSELoss(MyLoss):
     "assume [...,2] as complex input"
     def forward(self, x,target):
-        loss = (x-target).norm(dim=-1)
+
+        try:
+            loss = (x-target).radius
+        except:
+            loss = (x-target).norm(dim=-1)# this method will return complex saclar, bad!
         return mean_stratage(loss,self.reduction)
 class NormMSELoss(MyLoss):
     "assume [...,2] as complex input"
     def forward(self, x,target):
-        loss = (x.norm(dim=-1)-target.norm(dim=-1))**2
+        try:
+            loss = (x.radius-target.radius)**2
+        except:
+            loss = (x.norm(dim=-1)-target.norm(dim=-1))**2
+        loss.__class__=torch.Tensor
         return mean_stratage(loss,self.reduction)
 
 

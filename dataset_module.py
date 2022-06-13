@@ -221,10 +221,10 @@ class SMSDataset(BaseDataSet):
 
     def __init__(self,curve_path_list,image_path_list,FeatureNum=1001,curve_branch='T',curve_flag='N',
                       type_predicted=None,target_predicted=None,normf='none',enhance_p='E',
-                      offline=False,offline_data_location=None,DATAROOT=None,dataset_quantity=None,case_type='train',
+                      offline=True,offline_data_location=None,DATAROOT=None,dataset_quantity=None,case_type='train',
                       partIdx=None,
                       val_filter=None,volume=None,range_clip=None,verbose=True,
-                      image_transformer=None,pick_index=None**kargs):
+                      image_transformer=None,pick_index=None,**kargs):
 
         logging_info = cPrint(verbose)
         assert curve_branch in self.allowed_curve_branch
