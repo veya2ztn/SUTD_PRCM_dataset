@@ -46,6 +46,31 @@ def get_FAST_B1NE_dataset(DATAROOT=DATAROOT,curve_branch='T',dataset="RDN",Featu
     dataset_train.accu_list = ['MSError']
     return dataset_train,dataset_valid
 
+def get_balance_2_classifier_dataset_good(loseFunction="CELoss",
+         DATAROOT=DATAROOT,dataset="RDN",
+         curve_branch='T',**kargs):
+    # should use balance_leftorright83 for the FetaureNum=128 case,
+    # the median of train is 83 and median of valid is 84,
+    # so the old series accuracy will have maximum 1% difference
+    DATASETROOT= os.path.join(DATAROOT,f"{dataset}DATASET")
+    CURVETRAIN = f"{DATASETROOT}/train_data_list"
+    IMAGETRAIN = IMAGE_TEST = None
+    CURVE_TEST = f"{DATASETROOT}/valid_data_list"
+    type_predicted  = "onehot"
+    target_predicted= "balance_leftorright83"
+    FeatureNum      = 128
+    dataset_train= SMSDatasetN(CURVETRAIN,IMAGETRAIN,FeatureNum=FeatureNum,curve_branch=curve_branch,enhance_p="E",case_type='train',
+                                type_predicted=type_predicted,target_predicted=target_predicted,
+                                **kargs)
+    dataset_valid= SMSDatasetN(CURVE_TEST,IMAGE_TEST,FeatureNum=FeatureNum,curve_branch=curve_branch,enhance_p="E",case_type='test',
+                                type_predicted=type_predicted,target_predicted=target_predicted,
+                                normf=[dataset_train.forf,dataset_train.invf],
+                                **kargs)
+    dataset_train.use_classifier_loss(loseFunction)
+    dataset_valid.use_classifier_loss(loseFunction)
+    dataset_train.accu_list = ["ClassifierA","ClassifierP","ClassifierN"]
+    return dataset_train,dataset_valid
+
 
 def get_balance_2_classifier_dataset(loseFunction="CELoss",
          DATAROOT=DATAROOT,dataset="RDN",

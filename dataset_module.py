@@ -223,6 +223,7 @@ class SMSDataset(BaseDataSet):
                       partIdx=None,
                       val_filter=None,volume=None,range_clip=None,verbose=True,
                       image_transformer=None,**kargs):
+
         logging_info = cPrint(verbose)
         assert curve_branch in self.allowed_curve_branch
 
@@ -238,7 +239,7 @@ class SMSDataset(BaseDataSet):
             self.normf      = normf
 
 
-        self.verbose = verbose
+        self.verbose         = verbose
         self.vectorDim       = self.FeatureNum = FeatureNum
         self.type_predicted  = type_predicted
         self.target_predicted= target_predicted
@@ -447,10 +448,22 @@ class SMSDataset(BaseDataSet):
                     labels           = (labels>mid)+0
                     #self.vector[np.arange(len(self.curvedata)), labels] = 1
                     self.vector      = torch.Tensor(labels).long()
-                elif target_predicted =='balance_leftorright':
+                elif 'balance_leftorright' in target_predicted:
                     #self.vector      = np.zeros((len(self.curvedata),self.FeatureNum)) #(...,128) onehot
                     labels           = np.argmax(self.curvedata,-1).flatten()
-                    mid              = np.median(labels)
+                    if target_predicted ==  'balance_leftorright':
+                        mid              = np.median(labels) #
+                    elif target_predicted ==  'balance_leftorright83':
+                        mid = 83    # the test dataset should have same mid as train, but in the original code way, it is 83 in train and 84 in valid, (128 vector), so it will make around 1% error.
+                    else:
+                        raise
+                    labels           = (labels>=mid)+0
+                    #self.vector[np.arange(len(self.curvedata)), labels] = 1
+                    self.vector = torch.Tensor(labels).long()
+                elif target_predicted =='balance_leftorright83':
+                    #self.vector      = np.zeros((len(self.curvedata),self.FeatureNum)) #(...,128) onehot
+                    labels           = np.argmax(self.curvedata,-1).flatten()
+                    mid              = np.median(labels) #
                     labels           = (labels>=mid)+0
                     #self.vector[np.arange(len(self.curvedata)), labels] = 1
                     self.vector = torch.Tensor(labels).long()
