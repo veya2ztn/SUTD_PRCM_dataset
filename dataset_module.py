@@ -79,7 +79,7 @@ class BaseDataSet(Dataset):
         #self.vector    = self.vector[:num] if self.vector is not None else None
 
     def __len__(self):
-        return self.length
+        return len(self.pick_index)
 
     def __getitem__(self, index):
         """
@@ -88,6 +88,8 @@ class BaseDataSet(Dataset):
         Returns:
             tuple: (image, target)
         """
+        if self.pick_index  is not None:
+            index = self.pick_index[index]
         curve_data = self.curvedata[index]#(2,1001)
         image_data = self.imagedata[index]#(1,16,16)
         if self.vector is None:
@@ -219,10 +221,10 @@ class SMSDataset(BaseDataSet):
 
     def __init__(self,curve_path_list,image_path_list,FeatureNum=1001,curve_branch='T',curve_flag='N',
                       type_predicted=None,target_predicted=None,normf='none',enhance_p='E',
-                      offline=True,offline_data_location=None,DATAROOT=None,dataset_quantity=None,case_type='train',
+                      offline=False,offline_data_location=None,DATAROOT=None,dataset_quantity=None,case_type='train',
                       partIdx=None,
                       val_filter=None,volume=None,range_clip=None,verbose=True,
-                      image_transformer=None,**kargs):
+                      image_transformer=None,pick_index=None**kargs):
 
         logging_info = cPrint(verbose)
         assert curve_branch in self.allowed_curve_branch
@@ -453,9 +455,13 @@ class SMSDataset(BaseDataSet):
                     labels           = np.argmax(self.curvedata,-1).flatten()
                     if target_predicted ==  'balance_leftorright':
                         mid              = np.median(labels) #
+                        print("Warning: you are using auto balance binary labels, please make sure the median in train and test is consistancy")
+                        print(f"the median of {self.case_type} among {len(labels)} samples is {mid}")
+                        print(f"you can directly pass the global median argument by using [target_predicted ==  'balance_leftorrightAA'] ")
                     elif target_predicted ==  'balance_leftorright83':
                         mid = 83    # the test dataset should have same mid as train, but in the original code way, it is 83 in train and 84 in valid, (128 vector), so it will make around 1% error.
                     else:
+                        mid = int(target_predicted.replace("balance_leftorright",""))
                         raise
                     labels           = (labels>=mid)+0
                     #self.vector[np.arange(len(self.curvedata)), labels] = 1
@@ -578,7 +584,8 @@ class SMSDataset(BaseDataSet):
 
         self.transformer.forf  = self.forf
         self.transformer.invf  = self.invf
-        self.length            = len(self.curvedata)
+        self.pick_index        = pick_index if pick_index is not None else list(range(len(self.curvedata)))
+        self.length            = len(self.pick_index)
 
         print(f">>>> {case_type} dataset size {self.length}")
 
