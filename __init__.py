@@ -46,12 +46,13 @@ def get_FAST_B1NE_dataset(DATAROOT=DATAROOT,curve_branch='T',dataset="RDN",Featu
     dataset_train.accu_list = ['MSError']
     return dataset_train,dataset_valid
 
-def get_balance_2_classifier_dataset_good(loseFunction="CELoss",
+def get_balance_2_classifier_dataset(loseFunction="CELoss",
          DATAROOT=DATAROOT,dataset="RDN",
          curve_branch='T',**kargs):
     # should use balance_leftorright83 for the FetaureNum=128 case,
     # the median of train is 83 and median of valid is 84,
     # so the old series accuracy will have maximum 1% difference
+    assert dataset=='RDN'
     DATASETROOT= os.path.join(DATAROOT,f"{dataset}DATASET")
     CURVETRAIN = f"{DATASETROOT}/train_data_list"
     IMAGETRAIN = IMAGE_TEST = None
@@ -72,7 +73,7 @@ def get_balance_2_classifier_dataset_good(loseFunction="CELoss",
     return dataset_train,dataset_valid
 
 
-def get_balance_2_classifier_dataset(loseFunction="CELoss",
+def get_balance_2_classifier_dataset_old(loseFunction="CELoss",
          DATAROOT=DATAROOT,dataset="RDN",
          curve_branch='T',**kargs):
     DATASETROOT= os.path.join(DATAROOT,f"{dataset}DATASET")
