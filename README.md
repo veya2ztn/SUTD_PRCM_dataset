@@ -114,3 +114,15 @@ dataset_train,dataset_valid = get_FAST_B1NE_dataset(dataset_path,
                                          dataset=dataset_class,FeatureNum=curve_feature,                                                              type_predicted="combination",target_predicted="peakparameters")
 ```
 
+If you use this dataset in your research, please use below citation:
+```
+@article{zhang2022symmetry,
+  title={Symmetry Enhanced Network Architecture Search for Complex Metasurface Design},
+  author={Zhang, Tianning and Kee, Chun Yun and Ang, Yee Sin and Li, Erping and Ang, Lay Kee},
+  journal={IEEE Access},
+  volume={10},
+  pages={73533--73547},
+  year={2022},
+  publisher={IEEE}
+}
+```
